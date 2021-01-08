@@ -1,0 +1,58 @@
+create table query1(
+moviecount, name)
+as(select count(movieid), genres.name
+from hasagenre, genres 
+where hasagenre.genreid = genres.genreid
+group by genres.genreid);
+
+create table query2(
+name, rating)
+as(select genres.name, avg(ratings.rating)
+from genres
+inner join hasagenre on genres.genreid = hasagenre.genreid
+inner join ratings on hasagenre.movieid = ratings.movieid
+group by genres.genreid);
+
+create table query3(
+title, CountOfRatings)
+as(select movies.title, count(ratings)
+from movies, ratings
+where movies.movieid = ratings.movieid
+group by movies.movieid
+having count(ratings)>10);
+
+create table query4
+as(select hasagenre.movieid, movies.title
+from genres
+inner join hasagenre on hasagenre.genreid = genres.genreid and genres.name = 'Comedy'
+inner join movies on hasagenre.movieid = movies.movieid);
+
+create table query5(title, average)
+as(select movies.title, avg(ratings.rating)
+from movies, ratings
+where movies.movieid = ratings.movieid
+group by movies.movieid);
+
+create table query6(average)
+as(select avg(ratings.rating)
+from genres
+inner join hasagenre on genres.genreid = hasagenre.genreid and genres.name = 'Comedy'
+inner join ratings on ratings.movieid = hasagenre.movieid
+group by genres.genreid);
+
+create table query7(average)
+as(select avg(rating) from hasagenre g1
+join hasagenre g2 on g1.movieid = g2.movieid 
+and g1.genreid = (select genres.genreid from genres where genres.name = 'Comedy')
+and g2.genreid = (select genres.genreid from genres where genres.name = 'Romance'), ratings r
+where g1.movieid = r.movieid);
+
+create table query8(average)
+as(select avg(rating) from hasagenre g1
+join hasagenre g2 on g1.movieid = g2.movieid 
+and g1.genreid <> (select genres.genreid from genres where genres.name = 'Comedy')
+and g2.genreid = (select genres.genreid from genres where genres.name = 'Romance'), ratings r
+where g1.movieid = r.movieid);
+
+create table query9
+as(select movieid, rating from ratings where userid = :v1);
